@@ -1,6 +1,7 @@
 pub mod client;
 pub mod error;
 pub mod message;
+pub mod object;
 pub mod subscription;
 pub mod topic;
 
