@@ -19,12 +19,6 @@ pub struct Object {
     pub(crate) client: Option<Client>,
 }
 
-#[derive(Deserialize, Serialize)]
-pub struct ObjectRequest {
-    pub bucket: String,
-    pub name: String,
-}
-
 #[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ObjectResource {
@@ -98,14 +92,16 @@ pub struct ProjectTeam {
 impl Object {
     pub async fn copy<T: serde::Serialize>(
         &self,
-        destination: Object,
+        bucket: String,
+        name: Option<String>,
         data: T,
     ) -> Result<ObjectResource, error::Error> {
         let client = self.client.clone().expect("Object must be created using a client");
 
+        let name = name.unwrap_or(self.name.clone());
         let uri: hyper::Uri = format!(
             "https://storage.googleapis.com/storage/v1/b/{}/o/{}/copyTo/b/{}/o/{}",
-            self.bucket, self.name, destination.bucket, destination.name
+            self.bucket, self.name, bucket, name
         )
         .parse()
         .unwrap();
