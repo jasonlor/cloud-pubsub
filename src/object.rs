@@ -19,6 +19,12 @@ pub struct Object {
     pub(crate) client: Option<Client>,
 }
 
+#[derive(Deserialize, Serialize)]
+pub struct ObjectRequest {
+    pub bucket: String,
+    pub name: String,
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ObjectResource {
@@ -122,8 +128,6 @@ impl Object {
 
         let mut req = client.request(Method::DELETE, "");
         *req.uri_mut() = uri.clone();
-
-        println!("Destroy! {:#?}", req);
 
         self.perform_request::<&str, ObjectResource>(uri, Method::DELETE, "").await?;
         Ok(())
