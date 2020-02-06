@@ -111,7 +111,7 @@ impl Object {
     }
 
     pub async fn destroy(self) -> Result<(), error::Error> {
-        let client = self.client.expect("Object was not created using a client");
+        let client = self.client.clone().expect("Object was not created using a client");
 
         let uri: hyper::Uri = format!(
             "https://storage.googleapis.com/storage/v1/b/{}/o/{}",
@@ -125,11 +125,8 @@ impl Object {
 
         println!("Destroy! {:#?}", req);
 
-        if let Err(e) = client.hyper_client().request(req).await {
-            Err(e.into())
-        } else {
-            Ok(())
-        }
+        self.perform_request::<&str, ObjectResource>(uri, Method::DELETE, "").await?;
+        Ok(())
     }
 
     async fn perform_request<T: serde::Serialize, U: DeserializeOwned + Clone>(
