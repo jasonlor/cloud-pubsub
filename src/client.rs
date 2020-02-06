@@ -1,4 +1,5 @@
 use crate::error;
+use crate::object::Object;
 use crate::subscription::Subscription;
 use crate::topic::Topic;
 use goauth::auth::JwtClaims;
@@ -83,16 +84,16 @@ impl Client {
         }
     }
 
+    pub fn object(&self, bucket: String, name: String) -> Object {
+        Object { client: Some(Client(self.0.clone())), name, bucket }
+    }
+
     pub fn is_running(&self) -> bool {
         self.0.read().unwrap().running.load(Ordering::SeqCst)
     }
 
     pub fn stop(&self) {
-        self.0
-            .write()
-            .unwrap()
-            .running
-            .store(false, Ordering::SeqCst)
+        self.0.write().unwrap().running.store(false, Ordering::SeqCst)
     }
 
     pub fn spawn_token_renew(&self, interval: Duration) {
@@ -125,9 +126,10 @@ impl Client {
     }
 
     fn get_token(&mut self) -> Result<goauth::auth::Token, goauth::error::GOErr> {
-        let credentials =
-            goauth::credentials::Credentials::from_file(&self.0.read().unwrap().credentials_path)
-                .unwrap();
+        let credentials = goauth::credentials::Credentials::from_file(
+            &self.0.read().unwrap().credentials_path,
+        )
+        .unwrap();
 
         self.set_project(credentials.project());
 
