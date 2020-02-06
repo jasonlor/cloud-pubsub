@@ -10,7 +10,7 @@ use serde::de::DeserializeOwned;
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct Object {
     pub bucket: String,
     pub name: String,
