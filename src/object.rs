@@ -123,6 +123,8 @@ impl Object {
         let mut req = client.request(Method::DELETE, "");
         *req.uri_mut() = uri.clone();
 
+        println!("Destroy! {:#?}", req);
+
         if let Err(e) = client.hyper_client().request(req).await {
             Err(e.into())
         } else {
