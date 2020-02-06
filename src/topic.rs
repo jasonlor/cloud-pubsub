@@ -38,12 +38,17 @@ impl Topic {
             client: None,
         };
 
-        let uri: hyper::Uri = format!("https://pubsub.googleapis.com/v1/{}", new_subscription.name)
-            .parse()
-            .unwrap();
+        let uri: hyper::Uri =
+            format!("https://pubsub.googleapis.com/v1/{}", new_subscription.name)
+                .parse()
+                .unwrap();
 
         let mut sub = self
-            .perform_request::<Subscription, Subscription>(uri, Method::PUT, new_subscription)
+            .perform_request::<Subscription, Subscription>(
+                uri,
+                Method::PUT,
+                new_subscription,
+            )
             .await?;
 
         sub.client = client.clone();
@@ -54,14 +59,13 @@ impl Topic {
         &self,
         data: T,
     ) -> Result<PublishMessageResponse, error::Error> {
-        let uri: hyper::Uri = format!("https://pubsub.googleapis.com/v1/{}:publish", self.name)
-            .parse()
-            .unwrap();
+        let uri: hyper::Uri =
+            format!("https://pubsub.googleapis.com/v1/{}:publish", self.name)
+                .parse()
+                .unwrap();
 
         let new_message = EncodedMessage::new(&data);
-        let payload = PublishMessageRequest {
-            messages: vec![new_message],
-        };
+        let payload = PublishMessageRequest { messages: vec![new_message] };
 
         self.perform_request::<PublishMessageRequest, PublishMessageResponse>(
             uri,
@@ -77,12 +81,10 @@ impl Topic {
         method: Method,
         data: T,
     ) -> Result<U, error::Error> {
-        let client = self
-            .client
-            .clone()
-            .expect("Topic must be created using a client");
+        let client = self.client.clone().expect("Topic must be created using a client");
 
-        let json = serde_json::to_string(&data).expect("Failed to serialize request body.");
+        let json =
+            serde_json::to_string(&data).expect("Failed to serialize request body.");
         let mut req = client.request(method, json);
         *req.uri_mut() = uri;
 
@@ -113,10 +115,7 @@ impl Topic {
 
     fn new_subscription_name(&self) -> String {
         let project = self.client.clone().unwrap().project();
-        let slug = thread_rng()
-            .sample_iter(&Alphanumeric)
-            .take(30)
-            .collect::<String>();
+        let slug = thread_rng().sample_iter(&Alphanumeric).take(30).collect::<String>();
 
         format!("projects/{}/subscriptions/RST{}", project, slug)
     }
