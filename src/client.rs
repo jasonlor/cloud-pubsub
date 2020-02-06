@@ -85,7 +85,7 @@ impl Client {
     }
 
     pub fn object(&self, bucket: String, name: String) -> Object {
-        Object { client: Some(Client(self.0.clone())), name, bucket }
+        Object { client: Some(Client(self.0.clone())), bucket, name }
     }
 
     pub fn is_running(&self) -> bool {
